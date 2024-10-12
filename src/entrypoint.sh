@@ -46,6 +46,8 @@ wait_for_remote() {
     sleep 1
     timeout=$((timeout - 1))
   done
+  echo "Listing contents of remote:"
+  ls -la "$remote_url"
 }
 
 initialize_git_remote_in_directory() {
