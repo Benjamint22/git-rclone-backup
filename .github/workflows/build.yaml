@@ -47,7 +47,9 @@ jobs:
       - name: Test
         env:
           IMAGE: ${{ steps.image_name.outputs.value }}:${{ steps.meta.outputs.tags }}
-        run: ./run_tests.sh "$IMAGE"
+        run: |
+          echo "Running tests for $IMAGE"
+          ./run_tests.sh "$IMAGE"
       - name: Push to latest
         if: github.ref == 'refs/heads/main'
         env:
