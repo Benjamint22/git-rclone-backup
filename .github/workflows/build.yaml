@@ -30,8 +30,9 @@ jobs:
         uses: docker/metadata-action@v5.5.1
         with:
           images: ghcr.io/${{ github.repository }}
-          tags: type=edge
+          tags: type=sha
       - name: Build
+        id: docker_build
         uses: docker/build-push-action@v6.9.0
         with:
           context: ./src
@@ -41,16 +42,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
       - name: Test
         env:
-          IMAGE: ghcr.io/${{ github.repository }}
-          TAG: ${{ steps.meta.outputs.tags }}
-        run: ./run_tests.sh "$IMAGE:$TAG"
+          IMAGE: ${{ steps.docker_build.outputs.imageid }}
+        run: ./run_tests.sh "$IMAGE"
       - name: Push as latest
         if: github.ref == 'refs/heads/main'
         env:
-          IMAGE: ghcr.io/${{ github.repository }}
-          SOURCE_TAG: ${{ steps.meta.outputs.tags }}
-          DEST_TAG: latest
+          SOURCE_IMAGE: ${{ steps.docker_build.outputs.imageid }}
+          DEST_IMAGE: ghcr.io/${{ github.repository }}:latest
         run: |
-          docker pull "$IMAGE:$SOURCE_TAG"
-          docker tag "$IMAGE:$SOURCE_TAG" "$IMAGE:$DEST_TAG"
-          docker push "$IMAGE:$DEST_TAG"
+          docker tag "$SOURCE_IMAGE" "$DEST_IMAGE"
+          docker push "$DEST_IMAGE"
