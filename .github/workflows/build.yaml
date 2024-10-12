@@ -47,7 +47,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         env:
           SOURCE_IMAGE: ${{ steps.meta.outputs.tags }}
-          DEST_IMAGE: ghcr.io/${{ github.repository }}:latest
         run: |
+          DEST_IMAGE=$(echo "$SOURCE_IMAGE" | sed 's/:.*$/:latest/')
+          echo "Pushing $SOURCE_IMAGE to $DEST_IMAGE"
           docker tag "$SOURCE_IMAGE" "$DEST_IMAGE"
           docker push "$DEST_IMAGE"
