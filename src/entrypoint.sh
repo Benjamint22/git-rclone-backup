@@ -135,7 +135,7 @@ main() {
 
   echo "Currently running as: $(whoami) ($(id -u):$(id -g))"
   echo "Owner of /source: $(stat -c '%U:%G' /source)"
-  echo "Owner of /config: $(stat -c '%U:%G' /config)"
+  echo "Owner of /config/rclone/rclone.conf: $(stat -c '%U:%G' /config/rclone/rclone.conf)"
 
   start_rclone
   wait_for_remote "$remote_url"
