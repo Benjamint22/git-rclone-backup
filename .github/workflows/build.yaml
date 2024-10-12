@@ -25,16 +25,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Generate image name
-        env:
-          REPOSITORY: ${{ github.repository }}
-        id: image_name
-        run: echo "value=ghcr.io/$REPOSITORY" | tr '[:upper:]' '[:lower:]' > "$GITHUB_OUTPUT"
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ steps.image_name.outputs.value }}
+          images: ghcr.io/${{ github.repository }}
           tags: type=sha
       - name: Build
         uses: docker/build-push-action@v6.9.0
@@ -46,15 +41,13 @@ jobs:
           platforms: linux/amd64,linux/arm64
       - name: Test
         env:
-          IMAGE: ${{ steps.image_name.outputs.value }}:${{ steps.meta.outputs.tags }}
-        run: |
-          echo "Running tests for $IMAGE"
-          ./run_tests.sh "$IMAGE"
+          IMAGE: ${{ steps.meta.outputs.tags }}
+        run: ./run_tests.sh "$IMAGE"
       - name: Push to latest
         if: github.ref == 'refs/heads/main'
         env:
-          SOURCE_IMAGE: ${{ steps.image_name.outputs.value }}:${{ steps.meta.outputs.tags }}
-          DEST_IMAGE: ${{ steps.image_name.outputs.value }}:latest
+          SOURCE_IMAGE: ${{ steps.meta.outputs.tags }}
+          DEST_IMAGE: ghcr.io/${{ github.repository }}:latest
         run: |
           docker tag "$SOURCE_IMAGE" "$DEST_IMAGE"
           docker push "$DEST_IMAGE"
