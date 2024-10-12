@@ -133,6 +133,10 @@ main() {
   remote_url="$(mktemp -d)"
   directory_to_backup="/source"
 
+  echo "Currently running as: $(whoami) ($(id -u):$(id -g))"
+  echo "Owner of /source: $(stat -c '%U:%G' /source)"
+  echo "Owner of /config: $(stat -c '%U:%G' /config)"
+
   start_rclone
   wait_for_remote "$remote_url"
   initialize_git_remote_in_directory "$remote_url"
