@@ -23,6 +23,7 @@ start_rclone() {
   while ! rclone rc core/pid | jq '.pid' &>/dev/null; do
     sleep 1
   done
+  echo "Rclone started successfully!"
 }
 
 wait_for_remote() {
@@ -35,9 +36,8 @@ wait_for_remote() {
     mountOpt="{\"AllowOther\": true}" \
     vfsOpt="{\"CacheMode\": 3, \"WriteBack\": \"100ms\"}"
   echo "Waiting for remote $remote_url..."
-  timeout=5
+  timeout=60
   while [ "$(rclone rc mount/listmounts | jq '.mountPoints | length')" != "1" ]; do
-    rclone rc mount/listmounts
     if [ "$timeout" -eq 0 ]; then
       echo "Timed out waiting for remote $remote_url." >&2
       exit 1
@@ -46,6 +46,7 @@ wait_for_remote() {
     sleep 1
     timeout=$((timeout - 1))
   done
+  echo "Remote $remote_url found!"
   echo "Listing contents of remote:"
   ls -la "$remote_url"
 }
@@ -118,7 +119,7 @@ try_pushing_changes() {
 
 wait_for_cache() {
   echo "Waiting for cache to be written..."
-  timeout=5
+  timeout=120
   sleep 0.25
   while [ "$(rclone rc vfs/queue | jq '.queue | length')" != "0" ]; do
     if [ "$timeout" -eq 0 ]; then
@@ -129,6 +130,7 @@ wait_for_cache() {
     sleep 1
     timeout=$((timeout - 1))
   done
+  echo "Cache written successfully!"
 }
 
 main() {
