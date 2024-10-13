@@ -149,6 +149,8 @@ main() {
   commit_directory "$directory_to_backup"
   try_pushing_changes "$directory_to_backup"
   wait_for_cache
+
+  echo "Backup completed successfully!"
 }
 
 main
