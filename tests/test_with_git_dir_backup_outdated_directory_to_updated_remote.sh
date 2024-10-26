@@ -4,7 +4,9 @@ set -e
 
 docker_image="$1"
 directory_1="$(mktemp -d)"
+git_directory_1="$(mktemp -d)"
 directory_2="$(mktemp -d)"
+git_directory_2="$(mktemp -d)"
 remote="$(mktemp -d)"
 
 # Set up git config
@@ -23,10 +25,6 @@ recursive_hash() {
 	for child in "$directory"/*; do
 		child_basename="$(basename "$child")"
 		[[ -e "$child" ]] || break
-		# If child is .git, skip it
-		if [ "$child_basename" = ".git" ]; then
-			continue
-		fi
 		# If child is a directory, recurse
 		if [ -d "$child" ]; then
 			contents_hash="$(recursive_hash "$child")"
@@ -69,16 +67,18 @@ arrange() {
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \
 		--user "$(id -u):$(id -g)" \
+		--env GIT_DIR="/git" \
+		--env GIT_WORK_TREE=/source \
 		--volume /etc/passwd:/etc/passwd:ro --volume /etc/group:/etc/group:ro \
-		-v "$directory_1:/source" \
-		-v "$remote:/fake_remote" \
-		-v "$rclone_config_path:/config/rclone/rclone.conf" \
+		--volume "$directory_1:/source:ro" \
+		--volume "$git_directory_1:/git" \
+		--volume "$remote:/fake_remote" \
+		--volume "$rclone_config_path:/config/rclone/rclone.conf:ro" \
 		"$docker_image"
 
 	# Create updated directory
 	cd "$directory_2"
 	rsync -a "$directory_1/" "$directory_2/"
-	rm -rf "$directory_2/.git"
 	printf "Newer test content" > test.txt
 	printf "Test contents 3" > some_directory/test3.txt
 
@@ -97,10 +97,13 @@ arrange() {
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \
 		--user "$(id -u):$(id -g)" \
+		--env GIT_DIR="/git" \
+		--env GIT_WORK_TREE=/source \
 		--volume /etc/passwd:/etc/passwd:ro --volume /etc/group:/etc/group:ro \
-		-v "$directory_2:/source" \
-		-v "$remote:/fake_remote" \
-		-v "$rclone_config_path:/config/rclone/rclone.conf" \
+		--volume "$directory_2:/source:ro" \
+		--volume "$git_directory_2:/git" \
+		--volume "$remote:/fake_remote" \
+		--volume "$rclone_config_path:/config/rclone/rclone.conf:ro" \
 		"$docker_image"
 
 	# Update something else in directory 1
@@ -135,10 +138,13 @@ act() {
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \
 		--user "$(id -u):$(id -g)" \
+		--env GIT_DIR="/git" \
+		--env GIT_WORK_TREE=/source \
 		--volume /etc/passwd:/etc/passwd:ro --volume /etc/group:/etc/group:ro \
-		-v "$directory_1:/source" \
-		-v "$remote:/fake_remote" \
-		-v "$rclone_config_path:/config/rclone/rclone.conf" \
+		--volume "$directory_1:/source:ro" \
+		--volume "$git_directory_1:/git" \
+		--volume "$remote:/fake_remote" \
+		--volume "$rclone_config_path:/config/rclone/rclone.conf:ro" \
 		"$docker_image"
 }
 

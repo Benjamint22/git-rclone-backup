@@ -4,6 +4,7 @@ set -e
 
 docker_image="$1"
 directory="$(mktemp -d)"
+git_directory="$(mktemp -d)"
 remote="$(mktemp -d)"
 
 # Set up git config
@@ -47,10 +48,13 @@ act() {
 		--cap-add SYS_ADMIN \
 		--security-opt apparmor:unconfined \
 		--user "$(id -u):$(id -g)" \
+		--env GIT_DIR="/git" \
+		--env GIT_WORK_TREE=/source \
 		--volume /etc/passwd:/etc/passwd:ro --volume /etc/group:/etc/group:ro \
-		-v "$directory:/source" \
-		-v "$remote:/fake_remote" \
-		-v "$rclone_config_path:/config/rclone/rclone.conf" \
+		--volume "$directory:/source:ro" \
+		--volume "$git_directory:/git" \
+		--volume "$remote:/fake_remote" \
+		--volume "$rclone_config_path:/config/rclone/rclone.conf:ro" \
 		"$docker_image"
 }
 

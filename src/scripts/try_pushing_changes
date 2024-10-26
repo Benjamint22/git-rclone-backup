@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -e
+
+directory=$1
+
+cd "$directory"
+echo "Pushing changes to $BACKUP_BRANCH_NAME..."
+if git push "$GIT_ORIGIN_NAME" HEAD:"$BACKUP_BRANCH_NAME"; then
+	echo "Changes pushed to branch '$BACKUP_BRANCH_NAME'."
+else
+	echo "Failed to push changes to branch '$BACKUP_BRANCH_NAME'." >&2
+	exit 1
+fi

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+remote_url=$1
+
+echo "Mounting remote $remote_url..."
+timeout=5
+rclone rc mount/mount \
+fs="backup_remote:" \
+mountPoint="$remote_url" \
+mountOpt="{\"AllowOther\": true}" \
+vfsOpt="{\"CacheMode\": 3, \"WriteBack\": \"100ms\"}"
+echo "Waiting for remote $remote_url..."
+timeout=60
+while [ "$(rclone rc mount/listmounts | jq '.mountPoints | length')" != "1" ]; do
+	if [ "$timeout" -eq 0 ]; then
+		echo "Timed out waiting for remote $remote_url." >&2
+		exit 1
+	fi
+	echo "Remote $remote_url not found, retrying..."
+	sleep 1
+	timeout=$((timeout - 1))
+done
+echo "Remote $remote_url found!"
+echo "Listing contents of remote:"
+ls -la "$remote_url"

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo "Waiting for cache to be written..."
+timeout=120
+sleep 0.25
+while [ "$(rclone rc vfs/queue | jq '.queue | length')" != "0" ]; do
+	if [ "$timeout" -eq 0 ]; then
+		echo "Timed out waiting for cache to be written." >&2
+		exit 1
+	fi
+	echo "Cache not written, retrying..."
+	sleep 1
+	timeout=$((timeout - 1))
+done
+echo "Cache written successfully!"

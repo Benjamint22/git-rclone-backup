@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+directory_to_backup="/source"
+
+pull_without_affecting_local_files "$directory_to_backup"
+commit_directory "$directory_to_backup"
+try_pushing_changes "$directory_to_backup"
+wait_for_cache

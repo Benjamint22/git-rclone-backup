@@ -10,4 +10,6 @@ if [ -z "$docker_image" ]; then
 fi
 
 ./tests/test_backup_new_directory_to_blank_remote.sh "$docker_image"
+./tests/test_with_git_dir_backup_new_directory_to_blank_remote.sh "$docker_image"
 ./tests/test_backup_outdated_directory_to_updated_remote.sh "$docker_image"
+./tests/test_with_git_dir_backup_outdated_directory_to_updated_remote.sh "$docker_image"

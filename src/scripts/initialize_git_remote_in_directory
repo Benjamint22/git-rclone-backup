@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+directory=$1
+
+cd "$directory"
+if [ -z "$(ls -A)" ]; then
+	echo "Initializing git remote in $directory..."
+	git init --bare
+else
+	if [ -f HEAD ] && [ -d refs ]; then
+		echo "Directory $directory is not empty and contains a git repository."
+	else
+		echo "Directory $directory is not empty and does not contain a git repository." >&2
+		exit 1
+	fi
+fi

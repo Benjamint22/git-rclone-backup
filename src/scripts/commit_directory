@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+directory=$1
+
+cd "$directory"
+echo "Staging changes in $directory..."
+git add .
+if ! git diff --cached --no-patch --exit-code; then
+	echo "Changes detected in $directory, committing..."
+	git commit -m "$BACKUP_COMMIT_MESSAGE"
+else
+	echo "No changes detected in $directory."
+fi

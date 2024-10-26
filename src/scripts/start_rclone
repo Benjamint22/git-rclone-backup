@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+cache_directory="$(mktemp -d)"
+
+echo "Starting rclone..."
+	nohup \
+	rclone rcd \
+	--cache-dir "$cache_directory" \
+	--rc-no-auth \
+	&
+echo "Waiting for rclone to start..."
+while ! rclone rc core/pid | jq '.pid' &>/dev/null; do
+	sleep 1
+done
+echo "Rclone started successfully!"

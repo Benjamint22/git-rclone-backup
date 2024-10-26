@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+directory=$1
+remote_url=$2
+
+cd "$directory"
+echo "Initializing git repository in $directory..."
+git init
+echo "Ensuring remote $GIT_ORIGIN_NAME points to $remote_url..."
+if git remote get-url "$GIT_ORIGIN_NAME" &>/dev/null; then
+	git remote set-url "$GIT_ORIGIN_NAME" "$remote_url"
+else
+	git remote add "$GIT_ORIGIN_NAME" "$remote_url"
+fi
