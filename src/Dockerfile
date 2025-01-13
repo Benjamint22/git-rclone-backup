@@ -1,4 +1,4 @@
-FROM rclone/rclone:1.68.1
+FROM rclone/rclone:1.69.0
 
 RUN apk add --no-cache bash git git-lfs jq
 
